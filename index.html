@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كشافة كنيسة الأمير تادرس | نظام الحضور والغياب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest-950: #142e22;
+    --forest-800: #1d4a34;
+    --forest-600: #2c6b45;
+    --forest-500: #357a52;
+    --khaki-100: #f6efdc;
+    --khaki-200: #efe3c4;
+    --khaki-400: #d8c397;
+    --khaki-600: #b39c68;
+    --brown-800: #4a3324;
+    --brown-600: #6b4a30;
+    --gold-300: #e9cd6f;
+    --gold-500: #c9a227;
+    --gold-700: #96760f;
+    --ink-900: #2a2015;
+    --ink-600: #5b4d3a;
+    --present: #3f7d4f;
+    --present-bg: #e3efe1;
+    --absent: #a3432b;
+    --absent-bg: #f4e3dc;
+    --shadow: 0 2px 10px rgba(42, 32, 21, 0.12);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--khaki-100);
+    color: var(--ink-900);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Cairo', sans-serif;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  a { color: inherit; }
+
+  /* ---------- Header ---------- */
+  header {
+    background: linear-gradient(160deg, var(--brown-800), var(--forest-950) 75%);
+    color: var(--khaki-100);
+    padding: 34px 20px 44px;
+    position: relative;
+    text-align: center;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-300), var(--gold-700) 75%);
+    box-shadow: 0 0 0 3px var(--khaki-100), inset 0 0 0 1px rgba(0,0,0,0.2);
+    margin-bottom: 14px;
+    font-size: 26px;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--khaki-400);
+    font-size: 15px;
+  }
+
+  .canvas-edge {
+    height: 16px;
+    width: 100%;
+    background: var(--forest-950);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 40%, 92% 100%, 84% 40%, 76% 100%, 68% 40%, 60% 100%, 52% 40%, 44% 100%, 36% 40%, 28% 100%, 20% 40%, 12% 100%, 4% 40%, 0% 100%);
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: -20px auto 0;
+    max-width: 480px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 13px 10px;
+    border: 2px solid var(--brown-800);
+    background: var(--khaki-200);
+    color: var(--brown-800);
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .tab-btn.active {
+    background: var(--forest-600);
+    border-color: var(--forest-950);
+    color: #fff;
+  }
+
+  .tab-btn:focus-visible {
+    outline: 3px solid var(--gold-500);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Layout ---------- */
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
+
+  .card {
+    background: #fffdf6;
+    border: 1px solid var(--khaki-600);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
+    color: var(--forest-950);
+  }
+
+  .card .subtext {
+    margin: 0 0 16px;
+    color: var(--ink-600);
+    font-size: 13.5px;
+  }
+
+  #setupBanner {
+    background: var(--absent-bg);
+    border: 1px solid var(--absent);
+    color: var(--absent);
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  #setupBanner[hidden] { display: none; }
+
+  /* ---------- Controls row ---------- */
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .field label {
+    font-size: 12.5px;
+    color: var(--ink-600);
+    font-weight: 700;
+  }
+
+  input[type="date"], input[type="text"], input[type="password"], select, textarea {
+    border: 1.5px solid var(--khaki-600);
+    background: var(--khaki-100);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14.5px;
+    color: var(--ink-900);
+  }
+
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+    outline: 3px solid var(--gold-500);
+    outline-offset: 1px;
+  }
+
+  textarea { resize: vertical; min-height: 90px; }
+
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.05s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+
+  .btn-primary { background: var(--forest-600); color: #fff; }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--brown-800);
+    border: 1.5px solid var(--brown-600);
+  }
+  .btn-outline:hover:not(:disabled) { background: var(--khaki-200); }
+
+  .btn.loading { position: relative; color: transparent !important; }
+  .btn.loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.5);
+    border-top-color: #fff;
+    animation: spin 0.7s linear infinite;
+  }
+  .btn-outline.loading::after { border-color: rgba(74,51,36,0.35); border-top-color: var(--brown-800); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Summary chips ---------- */
+  .summary-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .chip {
+    background: var(--khaki-200);
+    border: 1px solid var(--khaki-600);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-600);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .chip span.num { color: var(--forest-950); font-size: 14px; }
+  .chip.present-chip span.num { color: var(--present); }
+  .chip.absent-chip span.num { color: var(--absent); }
+
+  /* ---------- Roster list ---------- */
+  #rosterLoading { color: var(--ink-600); font-size: 14px; padding: 10px 0; }
+  #rosterLoading[hidden] { display: none; }
+
+  .roster-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--khaki-200);
+  }
+  .roster-row:last-child { border-bottom: none; }
+
+  .roster-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .roster-name { font-weight: 700; font-size: 15px; color: var(--ink-900); }
+  .roster-group { font-size: 12.5px; color: var(--ink-600); }
+
+  .status-toggle { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .status-btn {
+    border: 1.5px solid var(--khaki-600);
+    background: #fff;
+    color: var(--ink-600);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .status-btn.present.active { background: var(--present-bg); border-color: var(--present); color: var(--present); }
+  .status-btn.absent.active { background: var(--absent-bg); border-color: var(--absent); color: var(--absent); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-600);
+    font-size: 14px;
+    padding: 24px 10px;
+  }
+
+  .save-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--forest-950);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 50;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--absent); }
+  .toast.success { background: var(--present); }
+
+  footer {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-600);
+    padding: 10px 16px 30px;
+  }
+
+  /* ---------- PIN Modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 46, 34, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    animation: fadeIn 0.15s ease-out;
+  }
+  .modal-overlay[hidden] { display: none; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .modal-box {
+    background: #fffdf6;
+    border: 1px solid var(--khaki-600);
+    border-radius: 14px;
+    padding: 26px 24px 22px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 12px 34px rgba(20, 20, 10, 0.3);
+    animation: popIn 0.18s ease-out;
+  }
+
+  .modal-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: radial-gradient(circle at 35% 30%, var(--gold-300), var(--gold-700) 75%);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  }
+
+  .modal-box h3 { margin: 0 0 4px; font-size: 18px; color: var(--forest-950); }
+  .modal-sub { margin: 0 0 16px; font-size: 13px; color: var(--ink-600); }
+
+  #pinInput {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    letter-spacing: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+
+  .modal-error {
+    color: var(--absent);
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .modal-error[hidden] { display: none; }
+
+  .modal-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .modal-actions .btn { flex: 1; }
+
+  @media (max-width: 480px) {
+    .roster-row { flex-wrap: wrap; }
+    .status-toggle { width: 100%; justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">🏕️</div>
+  <h1>كشافة كنيسة الأمير تادرس</h1>
+  <p>نظام الحضور والغياب</p>
+</header>
+<div class="canvas-edge"></div>
+
+<nav class="tabs">
+  <button type="button" id="tabExcuse" class="tab-btn">تقديم عذر غياب</button>
+  <button type="button" id="tabAdmin" class="tab-btn">لوحة القادة</button>
+</nav>
+
+<main>
+  <div id="setupBanner" hidden></div>
+
+  <!-- ===== Admin Dashboard ===== -->
+  <section id="adminView" hidden>
+    <div class="card">
+      <h2>تسجيل الحضور</h2>
+      <p class="subtext">اختر الفرقة والتاريخ، ثم حدد حالة كل فرد واضغط حفظ الحضور.</p>
+
+      <div class="controls-row">
+        <div class="field">
+          <label for="groupSelect">الفرقة</label>
+          <select id="groupSelect">
+            <option value="">-- اختر الفرقة --</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="attendanceDate">التاريخ</label>
+          <input type="date" id="attendanceDate">
+        </div>
+        <div class="field">
+          <label for="searchInput">بحث بالاسم</label>
+          <input type="text" id="searchInput" placeholder="اكتب اسم الفرد...">
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <button type="button" id="markAllPresentBtn" class="btn btn-outline">تحديد الكل حاضر</button>
+        <button type="button" id="refreshBtn" class="btn btn-outline">تحديث القائمة</button>
+      </div>
+
+      <div class="summary-bar">
+        <div class="chip">الإجمالي <span class="num" id="statTotal">0</span></div>
+        <div class="chip present-chip">حاضر <span class="num" id="statPresent">0</span></div>
+        <div class="chip absent-chip">غائب <span class="num" id="statAbsent">0</span></div>
+        <div class="chip">لم يُحدد <span class="num" id="statUnmarked">0</span></div>
+      </div>
+
+      <p id="rosterLoading" hidden>جاري تحميل القائمة...</p>
+      <div id="rosterList"></div>
+
+      <div class="save-row">
+        <button type="button" id="saveAttendanceBtn" class="btn btn-primary">حفظ الحضور</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Excuse Form ===== -->
+  <section id="excuseView" hidden>
+    <div class="card">
+      <h2>تقديم عذر غياب</h2>
+      <p class="subtext">يصل العذر فورًا إلى القادة عبر البريد الإلكتروني.</p>
+
+      <form id="excuseForm">
+        <div class="field" style="margin-bottom:14px;">
+          <label for="excuseName">اسم الفرد</label>
+          <input type="text" id="excuseName" list="scoutNamesList" placeholder="اكتب اسمك..." autocomplete="off" required>
+          <datalist id="scoutNamesList"></datalist>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label for="excuseDate">تاريخ الغياب</label>
+          <input type="date" id="excuseDate" required>
+        </div>
+
+        <div class="field" style="margin-bottom:18px;">
+          <label for="excuseReason">سبب الغياب</label>
+          <textarea id="excuseReason" placeholder="اكتب سبب الغياب هنا..." required></textarea>
+        </div>
+
+        <div class="save-row">
+          <button type="submit" id="excuseSubmitBtn" class="btn btn-primary">إرسال العذر</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>كشافة كنيسة الأمير تادرس &middot; نظام داخلي لتسجيل الحضور والغياب</footer>
+
+<div id="toast" class="toast"></div>
+
+<!-- ===== PIN Modal ===== -->
+<div id="pinModal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <div class="modal-badge">🔒</div>
+    <h3>لوحة القادة</h3>
+    <p class="modal-sub">أدخل الرقم السري للدخول إلى لوحة القادة</p>
+    <input type="password" id="pinInput" inputmode="numeric" autocomplete="off" placeholder="••••">
+    <p id="pinError" class="modal-error" hidden>رقم سري غير صحيح، حاول مرة أخرى</p>
+    <div class="modal-actions">
+      <button type="button" id="pinCancelBtn" class="btn btn-outline">إلغاء</button>
+      <button type="button" id="pinSubmitBtn" class="btn btn-primary">دخول</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==================================================================
+  // إعدادات الربط مع جوجل شيت — عدّل هذا السطر فقط بعد نشر Apps Script
+  // ==================================================================
+  const CONFIG = {
+    WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbwwMNxS5e95Rz0DV8oFju7ygZWV-4qMBtlZomkHEWiZPLzi-QQEucJlMvkuI4EYTsPKkg/exec',
+    // اختياري: ضع رقمًا سريًا هنا (مثال: '2026') لطلبه عبر نافذة مخصصة
+    // قبل فتح لوحة القادة. اتركه فارغًا '' لتعطيل هذه الخاصية. ملاحظة:
+    // هذا تحقق بسيط من جهة المتصفح فقط وليس حماية حقيقية للبيانات —
+    // من يفتح أدوات المطور يستطيع تجاوزه، فلا تضع فيه سرًا حساسًا.
+    ADMIN_PIN: 'karma'
+  };
+
+  let roster = [];
+  let attendanceState = {}; // { "اسم الفرد": "حاضر" | "غائب" }
+  let currentDate = todayStr();
+  let selectedGroup = '';
+  let adminUnlocked = false;
+
+  function todayStr() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+
+  function isConfigured() {
+    return CONFIG.WEB_APP_URL && CONFIG.WEB_APP_URL.indexOf('PASTE_YOUR') === -1;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+
+  function groupOf(scout) {
+    return (scout.group && scout.group.trim()) ? scout.group.trim() : 'بدون فرقة';
+  }
+
+  // ---------------- API helpers ----------------
+  // ملاحظة مهمة: نستخدم Content-Type: text/plain في POST لتفادي
+  // طلب preflight (OPTIONS) الذي لا يدعمه Google Apps Script.
+  async function apiGet(action, params) {
+    const url = new URL(CONFIG.WEB_APP_URL);
+    url.searchParams.set('action', action);
+    if (params) Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+    const res = await fetch(url.toString(), { method: 'GET' });
+    if (!res.ok) throw new Error('خطأ في الاتصال (' + res.status + ')');
+    return res.json();
+  }
+
+  async function apiPost(payload) {
+    const res = await fetch(CONFIG.WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('خطأ في الاتصال (' + res.status + ')');
+    return res.json();
+  }
+
+  // ---------------- Toast / Banner ----------------
+  let toastTimer = null;
+  function showToast(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.className = 'toast'; }, 3800);
+  }
+
+  function showBanner(message) {
+    const banner = document.getElementById('setupBanner');
+    banner.textContent = message;
+    banner.hidden = false;
+  }
+
+  function setButtonLoading(id, loading) {
+    const btn = document.getElementById(id);
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+  }
+
+  // ---------------- Tabs & PIN Modal ----------------
+  function switchTab(tab) {
+    if (tab === 'admin') {
+      if (CONFIG.ADMIN_PIN && !adminUnlocked) {
+        openPinModal();
+        return;
+      }
+      showAdminView();
+    } else {
+      showExcuseView();
+    }
+  }
+
+  function showAdminView() {
+    document.getElementById('adminView').hidden = false;
+    document.getElementById('excuseView').hidden = true;
+    document.getElementById('tabAdmin').classList.add('active');
+    document.getElementById('tabExcuse').classList.remove('active');
+  }
+
+  function showExcuseView() {
+    document.getElementById('adminView').hidden = true;
+    document.getElementById('excuseView').hidden = false;
+    document.getElementById('tabExcuse').classList.add('active');
+    document.getElementById('tabAdmin').classList.remove('active');
+  }
+
+  function openPinModal() {
+    const modal = document.getElementById('pinModal');
+    const input = document.getElementById('pinInput');
+    document.getElementById('pinError').hidden = true;
+    input.value = '';
+    modal.hidden = false;
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function closePinModal() {
+    document.getElementById('pinModal').hidden = true;
+  }
+
+  function checkPin() {
+    const input = document.getElementById('pinInput');
+    const error = document.getElementById('pinError');
+    if (input.value === CONFIG.ADMIN_PIN) {
+      adminUnlocked = true;
+      closePinModal();
+      showAdminView();
+    } else {
+      error.hidden = false;
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  document.getElementById('pinSubmitBtn').addEventListener('click', checkPin);
+  document.getElementById('pinCancelBtn').addEventListener('click', closePinModal);
+  document.getElementById('pinInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); checkPin(); }
+  });
+  document.getElementById('pinModal').addEventListener('click', (e) => {
+    if (e.target.id === 'pinModal') closePinModal();
+  });
+
+  // ---------------- Roster / Admin ----------------
+  function setLoading(isLoading) {
+    document.getElementById('rosterLoading').hidden = !isLoading;
+  }
+
+  async function loadRoster() {
+    if (!isConfigured()) return;
+    setLoading(true);
+    try {
+      const data = await apiGet('getRoster');
+      if (!data.success) throw new Error(data.message || 'تعذر تحميل القائمة');
+      roster = data.roster || [];
+      renderGroupOptions();
+      renderNameDatalist();
+      await loadAttendanceForDate();
+    } catch (err) {
+      showToast('تعذر تحميل قائمة الأفراد: ' + err.message, 'error');
+      renderRosterTable();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadAttendanceForDate() {
+    attendanceState = {};
+    try {
+      const data = await apiGet('getAttendance', { date: currentDate });
+      if (data.success) attendanceState = data.records || {};
+    } catch (err) {
+      // لا يوجد سجلات بعد لهذا اليوم، لا داعي لإظهار خطأ
+    }
+    renderRosterTable();
+  }
+
+  function renderGroupOptions() {
+    const select = document.getElementById('groupSelect');
+    const groups = Array.from(new Set(roster.map(groupOf))).sort((a, b) => a.localeCompare(b, 'ar'));
+    const previousValue = selectedGroup;
+    select.innerHTML = '<option value="">-- اختر الفرقة --</option>' +
+      groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+    if (previousValue && groups.includes(previousValue)) {
+      select.value = previousValue;
+    } else {
+      selectedGroup = '';
+      select.value = '';
+    }
+  }
+
+  function renderRosterTable() {
+    const container = document.getElementById('rosterList');
+    const search = document.getElementById('searchInput').value.trim();
+
+    if (!selectedGroup) {
+      container.innerHTML = '<p class="empty-state">اختر الفرقة أولاً لعرض قائمة أفرادها.</p>';
+      updateSummary([]);
+      return;
+    }
+
+    const groupScouts = roster.filter(s => groupOf(s) === selectedGroup);
+    const filtered = groupScouts.filter(s => !search || s.name.indexOf(search) !== -1);
+
+    container.innerHTML = '';
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p class="empty-state">لا يوجد أفراد مطابقون في هذه الفرقة.</p>';
+    } else {
+      filtered.forEach(scout => {
+        const status = attendanceState[scout.name];
+        const row = document.createElement('div');
+        row.className = 'roster-row';
+        row.innerHTML = `
+          <div class="roster-info">
+            <span class="roster-name">${escapeHtml(scout.name)}</span>
+          </div>
+          <div class="status-toggle">
+            <button type="button" class="status-btn present ${status === 'حاضر' ? 'active' : ''}" data-name="${escapeHtml(scout.name)}" data-status="حاضر">حاضر</button>
+            <button type="button" class="status-btn absent ${status === 'غائب' ? 'active' : ''}" data-name="${escapeHtml(scout.name)}" data-status="غائب">غائب</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      container.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const name = btn.dataset.name;
+          const status = btn.dataset.status;
+          attendanceState[name] = (attendanceState[name] === status) ? undefined : status;
+          if (!attendanceState[name]) delete attendanceState[name];
+          renderRosterTable();
+        });
+      });
+    }
+
+    updateSummary(groupScouts);
+  }
+
+  function updateSummary(scoutList) {
+    const list = scoutList || [];
+    const total = list.length;
+    let present = 0, absent = 0;
+    list.forEach(s => {
+      const st = attendanceState[s.name];
+      if (st === 'حاضر') present++;
+      else if (st === 'غائب') absent++;
+    });
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPresent').textContent = present;
+    document.getElementById('statAbsent').textContent = absent;
+    document.getElementById('statUnmarked').textContent = Math.max(total - present - absent, 0);
+  }
+
+  function renderNameDatalist() {
+    const list = document.getElementById('scoutNamesList');
+    list.innerHTML = roster.map(s => `<option value="${escapeHtml(s.name)}"></option>`).join('');
+  }
+
+  // ---------------- Events ----------------
+  document.getElementById('tabAdmin').addEventListener('click', () => switchTab('admin'));
+  document.getElementById('tabExcuse').addEventListener('click', () => switchTab('excuse'));
+
+  document.getElementById('groupSelect').addEventListener('change', (e) => {
+    selectedGroup = e.target.value;
+    renderRosterTable();
+  });
+
+  document.getElementById('attendanceDate').addEventListener('change', (e) => {
+    currentDate = e.target.value;
+    loadAttendanceForDate();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', renderRosterTable);
+
+  document.getElementById('markAllPresentBtn').addEventListener('click', () => {
+    if (!selectedGroup) {
+      showToast('اختر الفرقة أولاً', 'error');
+      return;
+    }
+    roster.filter(s => groupOf(s) === selectedGroup).forEach(s => { attendanceState[s.name] = 'حاضر'; });
+    renderRosterTable();
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', loadRoster);
+
+  document.getElementById('saveAttendanceBtn').addEventListener('click', async () => {
+    const records = Object.keys(attendanceState).map(name => ({ name, status: attendanceState[name] }));
+    if (records.length === 0) {
+      showToast('حدد حالة فرد واحد على الأقل قبل الحفظ', 'error');
+      return;
+    }
+    setButtonLoading('saveAttendanceBtn', true);
+    try {
+      const data = await apiPost({ action: 'submitAttendance', date: currentDate, records });
+      if (!data.success) throw new Error(data.message || 'تعذر الحفظ');
+      showToast(`تم حفظ حضور ${data.count} فرد بنجاح`, 'success');
+    } catch (err) {
+      showToast('حدث خطأ أثناء الحفظ: ' + err.message, 'error');
+    } finally {
+      setButtonLoading('saveAttendanceBtn', false);
+    }
+  });
+
+  document.getElementById('excuseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('excuseName').value.trim();
+    const date = document.getElementById('excuseDate').value;
+    const reason = document.getElementById('excuseReason').value.trim();
+
+    if (!name || !date || !reason) {
+      showToast('من فضلك أكمل جميع الحقول', 'error');
+      return;
+    }
+
+    setButtonLoading('excuseSubmitBtn', true);
+    try {
+      const data = await apiPost({ action: 'submitExcuse', name, date, reason });
+      if (!data.success) throw new Error(data.message || 'تعذر الإرسال');
+      showToast('تم إرسال العذر بنجاح', 'success');
+      document.getElementById('excuseForm').reset();
+      document.getElementById('excuseDate').value = todayStr();
+    } catch (err) {
+      showToast('تعذر إرسال العذر: ' + err.message, 'error');
+    } finally {
+      setButtonLoading('excuseSubmitBtn', false);
+    }
+  });
+
+  // ---------------- Init ----------------
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('attendanceDate').value = todayStr();
+    document.getElementById('excuseDate').value = todayStr();
+    currentDate = todayStr();
+
+    if (!isConfigured()) {
+      showBanner('⚠️ لم يتم ربط التطبيق بجوجل شيت بعد. افتح ملف index.html وضع رابط Google Apps Script في CONFIG.WEB_APP_URL أعلى كود الجافاسكريبت، بعد نشر السكربت كما هو موضح في التعليمات.');
+      switchTab('excuse');
+      return;
+    }
+
+    loadRoster();
+    switchTab('excuse');
+  });
+</script>
+</body>
+</html>
